@@ -1,0 +1,56 @@
+@page "/registerevent"
+@using EventEase
+@using EventEaseApp.Services
+@inject NavigationManager Navigation
+@inject EventService EventService
+
+
+<h1>Register New Event</h1>
+
+<EditForm Model="NewEvent" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="Cancel">
+    <ValidationSummary />
+    <DataAnnotationsValidator />
+
+    <div>
+        <label>Name:</label>
+        <InputText @bind-Value="NewEvent.Name" />
+        <ValidationMessage For="@(() => NewEvent.Name)" />
+    </div>
+    <div>
+        <label>location:</label>
+        <InputText @bind-Value="NewEvent.Location" />
+        <ValidationMessage For="@(() => NewEvent.Location)" />
+    </div>
+    <div>
+        <InputDate @bind-Value="NewEvent.Date" />
+        <ValidationMessage For="@(() => NewEvent.Date)" />
+    </div>
+    <div>
+        <label>Description:</label>
+        <InputTextArea @bind-Value="NewEvent.Description" />
+        <ValidationMessage For="@(() => NewEvent.Description)" />
+    </div>
+    <button type="submit">Register Event</button>
+    <button type="button" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code {
+    private EventModel NewEvent = new EventModel();
+
+    private async Task HandleValidSubmit()
+    {
+        // Logic to save the new event
+        Console.WriteLine($"Submitting event: Name={NewEvent.Name}, Location={NewEvent.Location}, Date={NewEvent.Date}, Description={NewEvent.Description}");
+        // For example, you can add it to a list or send it to a server
+        await EventService.AddEvent(NewEvent);
+        // Optionally, you can clear the form after submission
+        NewEvent = new EventModel();
+        Console.WriteLine("Trying to submit");
+        // Navigate back to the event list after registration
+        Navigation.NavigateTo("/events");
+    }
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/events");
+    }
+}

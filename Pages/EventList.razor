@@ -1,0 +1,86 @@
+@page "/events"
+@using EventEase
+@inject NavigationManager Navigation
+@using EventEaseApp.Services
+@using EventEaseApp.Components
+@inject EventService EventService
+@inject RegistrationService RegistrationService
+
+<h1>EventEaseApp List</h1>
+
+@if (Events == null || !Events.Any())
+{
+    <p>No events available.</p>
+}
+else
+{
+    @foreach (var eventItem in Events)
+    {
+        <div>
+            <EventCard eventInst="eventItem" />
+            <p>Attendance: @eventItem.Attendance</p>
+            <button @onclick="() => NavigateToEvent(eventItem.Id)">Register</button>
+        </div>
+    }
+}
+
+<div>
+    <button @onclick="PreviousPage" disabled="@IsFirstPage">Previous</button>
+    <span>Page @CurrentPage</span>
+    <button @onclick="NextPage" disabled="@IsLastPage">Next</button>
+</div>
+
+<button @onclick="NavigateToRegister">Register New Event</button>
+
+@code {
+    private List<EventModel> Events = new(); // Holds the list of events for the current page
+    private int CurrentPage = 1;
+    private int TotalPages = 0;
+    private const int PageSize = 10; // Number of events per page
+    private bool IsLastPage => CurrentPage >= TotalPages + 1;
+    private bool IsFirstPage => CurrentPage <= 1;
+
+    // Navigate to the event registration page
+    private void NavigateToRegister()
+    {
+        Navigation.NavigateTo("/registerevent");
+    }
+
+    // Navigate to the registration form for a specific event
+    private void NavigateToEvent(int eventId)
+    {
+        Navigation.NavigateTo($"/registertoevent/{eventId}");
+    }
+
+    // Called when the component is initialized
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    // Loads the events for the current page
+    private async Task LoadEvents()
+    {
+        (Events, TotalPages) = await EventService.GetEventsByPage(CurrentPage, PageSize);
+    }
+
+    // Navigate to the next page of events
+    private async Task NextPage()
+    {
+        if (!IsLastPage)
+        {
+            CurrentPage++;
+            await LoadEvents();
+        }
+    }
+
+    // Navigate to the previous page of events
+    private async Task PreviousPage()
+    {
+        if (!IsFirstPage)
+        {
+            CurrentPage--;
+            await LoadEvents();
+        }
+    }
+}

@@ -1,0 +1,57 @@
+@page "/registertoevent/{eventId:int}"
+
+@using EventEase
+@inject RegistrationService RegistrationService
+@inject NavigationManager NavigationManager
+@inject SessionService SessionService
+
+<h1>Register for Event</h1>
+
+<EditForm Model="registration" OnValidSubmit="HandleValidSubmit">
+    <ValidationSummary />
+    <DataAnnotationsValidator />
+
+    <div>
+        <label>Name:</label>
+        <InputText @bind-Value="registration.Name" />
+        <ValidationMessage For="@(() => registration.Name)" />
+    </div>
+    <div>
+        <label>Email:</label>
+        <InputText @bind-Value="registration.Email" />
+        <ValidationMessage For="@(() => registration.Email)" />
+    </div>
+    <button type="submit">Register</button>
+    <button type="button" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@code
+{
+    [Parameter]
+    public int EventId { get; set; }
+
+    private RegistrationModel registration = new();
+
+    protected override void OnInitialized()
+    {
+        // Initialize the registration object with the event ID
+        registration.EventId = EventId;
+
+        if(SessionService.IsLoggedIn)
+        {
+            registration.Name = SessionService.UserName!;
+            registration.Email = SessionService.UserEmail!;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await RegistrationService.AddRegistration(registration);
+        NavigationManager.NavigateTo("/events");
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/events");
+    }
+}

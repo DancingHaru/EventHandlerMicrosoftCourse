@@ -1,0 +1,15 @@
+@using EventEase
+
+<div class="event-card">
+    <h3>@eventInst.Name</h3>
+    <p><strong>Date:</strong> @eventInst.Date.ToString("dd.MM.yyyy")</p>
+    <p><strong>Location:</strong> @eventInst.Location</p>
+    <p>@eventInst.Description</p>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public EventModel eventInst { get; set; } = new EventModel();
+}
